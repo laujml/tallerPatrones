@@ -23,8 +23,13 @@ Permite gestionar posts (tipo blog) mediante una arquitectura modular dividida p
 src/
  ├── app.ts
  ├── server.ts
+ ├── data/
+ │     └── postsStore.ts
+ ├── routes/
+ │     └── posts.ts
  ├── __tests__/
- │     └── health.test.ts
+ │     ├── health.test.ts
+ │     └── posts.test.ts
 
 doc/
  └── ai/plans/
@@ -51,7 +56,7 @@ http://localhost:3000
 
 ---
 
-##  Endpoint disponible
+##  Endpoints disponibles
 
 GET /health
 
@@ -60,6 +65,36 @@ Respuesta:
 {
   "status": "ok"
 }
+
+---
+
+POST /posts
+
+Body requerido: title, content, slug, author_id
+Body opcional: excerpt, status (default: "draft")
+
+Respuestas:
+- 201 — post creado
+- 400 — campos requeridos faltantes o status inválido
+- 409 — slug duplicado
+
+---
+
+PUT /posts/:id
+PATCH /posts/:id
+
+Body: cualquier campo del post (actualización parcial)
+
+Respuestas:
+- 200 — post actualizado
+- 400 — status inválido o transición de estado no permitida
+- 404 — post no encontrado
+- 409 — slug duplicado
+
+Reglas de estado:
+- Al pasar a "publish" se setea published_at
+- Al pasar a "trash" se setea deleted_at
+- No se puede pasar de "trash" a "publish" directamente
 
 ---
 
@@ -85,8 +120,12 @@ Persona 3:
 - DELETE /posts/:id
 
 Persona 4:
-- POST /posts
-- PUT /posts/:id
+- POST /posts (crear post con validaciones)
+- PUT /posts/:id (actualización completa)
+- PATCH /posts/:id (actualización parcial)
+- Validaciones: campos requeridos, slug único, status válido
+- Manejo de transiciones de estado (published_at, deleted_at)
+- 18 tests cubriendo happy path y casos de error
 
 ---
 
@@ -124,8 +163,12 @@ Contiene:
 
 ✔ servidor funcionando  
 ✔ /health activo  
-✔ tests pasando  
+✔ tests pasando (21 en total)  
 ✔ estructura lista  
+✔ POST /posts implementado  
+✔ PUT /posts/:id implementado  
+✔ PATCH /posts/:id implementado  
+✔ store en memoria compartido  
 
 ---
 
