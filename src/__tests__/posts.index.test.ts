@@ -1,5 +1,40 @@
 import request from "supertest";
 import app from "../app";
+import { resetStore, createPost } from "../data/postsStore";
+ 
+beforeEach(() => {
+  resetStore();
+ 
+  createPost({
+    title: "Introducción a TypeScript",
+    content: "TypeScript agrega tipado estático a JavaScript.",
+    slug: "introduccion-a-typescript",
+    status: "publish",
+    author_id: 1,
+  });
+  createPost({
+    title: "Patrones de diseño en Node.js",
+    content: "Repaso de patrones creacionales, estructurales y de comportamiento.",
+    slug: "patrones-de-diseno-en-nodejs",
+    status: "publish",
+    author_id: 2,
+  });
+  createPost({
+    title: "Borrador sin publicar",
+    content: "Todavía en progreso.",
+    slug: "borrador-sin-publicar",
+    status: "draft",
+    author_id: 1,
+  });
+  createPost({
+    title: "Post eliminado (soft delete)",
+    content: "Este no debería aparecer nunca en el Index.",
+    slug: "post-eliminado",
+    status: "publish",
+    author_id: 2,
+    deleted_at: new Date().toISOString(),
+  });
+});
  
 describe("GET /posts", () => {
   it("devuelve 200 con defaults (page=1, limit=10)", async () => {
@@ -69,4 +104,21 @@ describe("GET /posts", () => {
     const res = await request(app).get("/posts?author_id=abc");
     expect(res.status).toBe(400);
   });
+ 
+  it("un post creado vía POST /posts aparece en GET /posts", async () => {
+    await request(app).post("/posts").send({
+      title: "Post creado en runtime",
+      content: "Contenido de prueba de integración",
+      slug: "post-creado-en-runtime",
+      author_id: 5,
+      status: "publish",
+    });
+ 
+    const res = await request(app).get("/posts?search=runtime");
+    expect(res.status).toBe(200);
+    expect(res.body.data.some((p: any) => p.slug === "post-creado-en-runtime")).toBe(
+      true
+    );
+  });
 });
+ 
