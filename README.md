@@ -1,120 +1,89 @@
-# CMS API - Taller de Patrones de Diseño
+CMS API - Taller de Patrones de Diseño
 
-## Descripción general
+Descripción general
 
 Este proyecto es una API REST tipo CMS (Content Management System) construida con Node.js, Express y TypeScript.
 
 Permite gestionar posts (tipo blog) mediante una arquitectura modular dividida por "personas", simulando trabajo en equipo real.
 
----
 
-## Tecnologías utilizadas
+Tecnologías utilizadas
 
-- Node.js
-- Express
-- TypeScript
-- Jest
-- ts-node-dev
 
----
+Node.js
+Express
+TypeScript
+Jest
+ts-node-dev
 
-## Estructura del proyecto
 
-```
+
+Estructura del proyecto
+
 src/
  ├── app.ts
  ├── server.ts
-<<<<<<< HEAD
  ├── models/
  │     └── post.ts
  ├── data/
- │     └── posts.store.ts
+ │     └── postsStore.ts
  ├── services/
  │     └── post.service.ts
  ├── controllers/
  │     └── post.controller.ts
  ├── routes/
- │     └── post.routes.ts
+ │     ├── post.routes.ts
+ │     └── posts.ts
  └── __tests__/
        ├── health.test.ts
-       └── posts.index.test.ts
-=======
- ├── data/
- │     └── postsStore.ts
- ├── routes/
- │     └── posts.ts
- ├── __tests__/
- │     ├── health.test.ts
- │     └── posts.test.ts
->>>>>>> origin/main
+       ├── posts.index.test.ts
+       └── posts.test.ts
 
 doc/
  └── ai/plans/
        ├── 00-foundation.md
-       └── 01-index.md
+       ├── 01-index.md
+       └── 04-persona4-store-update.md
 
 package.json
 tsconfig.json
 README.md
 .gitignore
-```
 
----
 
-## Instalación
+Instalación
 
-```
 npm install
-```
 
----
 
-## Ejecutar el proyecto
+Ejecutar el proyecto
 
-```
 npm run dev
-```
 
 http://localhost:3000
 
----
 
-<<<<<<< HEAD
-## Endpoints disponibles
-=======
-##  Endpoints disponibles
->>>>>>> origin/main
+Endpoints disponibles
 
-### GET /health
+GET /health
 
 Respuesta:
 
-```json
-{
+json{
   "status": "ok"
 }
-```
 
-### GET /posts
+GET /posts
 
-Lista los posts existentes con filtros, búsqueda, orden y paginación. Excluye automáticamente los posts con soft delete (`deleted_at`).
+Lista los posts existentes con filtros, búsqueda, orden y paginación. Excluye automáticamente los posts con soft delete (deleted_at).
 
-**Query params:**
+Query params:
 
-| Param       | Tipo   | Default      | Descripción                                              |
-|-------------|--------|--------------|------------------------------------------------------------|
-| `page`      | number | `1`          | Página actual                                               |
-| `limit`     | number | `10`         | Registros por página (máx. 100)                             |
-| `status`    | string | -            | `draft` \| `publish` \| `pending` \| `private` \| `trash`   |
-| `author_id` | number | -            | Filtra por autor                                            |
-| `search`    | string | -            | Búsqueda parcial en `title`/`content`                       |
-| `sortBy`    | string | `created_at` | `created_at` \| `updated_at` \| `title` \| `status`          |
-| `order`     | string | `desc`       | `asc` \| `desc`                                              |
+ParamTipoDefaultDescripciónpagenumber1Página actuallimitnumber10Registros por página (máx. 100)statusstring-draft | publish | pending | private | trashauthor_idnumber-Filtra por autorsearchstring-Búsqueda parcial en title/contentsortBystringcreated_atcreated_at | updated_at | title | statusorderstringdescasc | desc
 
-**Respuesta (200 OK):**
+Respuesta (200 OK):
 
-```json
-{
+json{
   "data": [
     {
       "id": 1,
@@ -134,94 +103,96 @@ Lista los posts existentes con filtros, búsqueda, orden y paginación. Excluye 
     "totalPages": 1
   }
 }
-```
 
-**Errores (400):**
+Errores (400):
 
-```json
-{
+json{
   "error": {
     "message": "...",
     "code": "INVALID_QUERY_PARAM"
   }
 }
-```
 
-Ejemplos: `page`/`limit` no numéricos, `status` fuera del enum, `sortBy` no permitido, `author_id` no numérico.
+Ejemplos: page/limit no numéricos, status fuera del enum, sortBy no permitido, author_id no numérico.
 
----
-
-<<<<<<< HEAD
-## Tests
-=======
 POST /posts
 
 Body requerido: title, content, slug, author_id
 Body opcional: excerpt, status (default: "draft")
 
 Respuestas:
-- 201 — post creado
-- 400 — campos requeridos faltantes o status inválido
-- 409 — slug duplicado
 
----
 
-PUT /posts/:id
-PATCH /posts/:id
+201 — post creado
+400 — campos requeridos faltantes o status inválido
+409 — slug duplicado
+
+
+PUT /posts/:id · PATCH /posts/:id
 
 Body: cualquier campo del post (actualización parcial)
 
 Respuestas:
-- 200 — post actualizado
-- 400 — status inválido o transición de estado no permitida
-- 404 — post no encontrado
-- 409 — slug duplicado
+
+
+200 — post actualizado
+400 — status inválido o transición de estado no permitida
+404 — post no encontrado
+409 — slug duplicado
+
 
 Reglas de estado:
-- Al pasar a "publish" se setea published_at
-- Al pasar a "trash" se setea deleted_at
-- No se puede pasar de "trash" a "publish" directamente
 
----
 
-##  Tests
->>>>>>> origin/main
+Al pasar a "publish" se setea published_at
+Al pasar a "trash" se setea deleted_at
+No se puede pasar de "trash" a "publish" directamente
 
-```
+
+
+Tests
+
 npm test
-```
 
----
 
-## Personas del proyecto
+Personas del proyecto
 
 Persona 1:
-- Setup del proyecto
-- Express + TypeScript
-- /health endpoint
-- Jest configurado
+
+
+Setup del proyecto
+Express + TypeScript
+/health endpoint
+Jest configurado
+
 
 Persona 2:
-- GET /posts — listado con filtros, búsqueda, orden y paginación ✔
+
+
+GET /posts — listado con filtros, búsqueda, orden y paginación ✔
+
 
 Persona 3:
-- GET /posts/:id
-- DELETE /posts/:id
+
+
+GET /posts/:id
+DELETE /posts/:id
+
 
 Persona 4:
-- POST /posts (crear post con validaciones)
-- PUT /posts/:id (actualización completa)
-- PATCH /posts/:id (actualización parcial)
-- Validaciones: campos requeridos, slug único, status válido
-- Manejo de transiciones de estado (published_at, deleted_at)
-- 18 tests cubriendo happy path y casos de error
 
----
 
-## Modelo Post
+POST /posts (crear post con validaciones)
+PUT /posts/:id (actualización completa)
+PATCH /posts/:id (actualización parcial)
+Validaciones: campos requeridos, slug único, status válido
+Manejo de transiciones de estado (published_at, deleted_at)
 
-```ts
-export type Post = {
+
+
+Modelo Post
+
+tsexport type Post = {
   id: number;
   title: string;
   content: string;
@@ -234,50 +205,43 @@ export type Post = {
   published_at?: string;
   deleted_at?: string;
 };
-```
 
----
+Definido en src/data/postsStore.ts — es el store compartido: todas las
+features (Index, Store, Update, y a futuro Show/Delete) leen y escriben ahí,
+para que los datos sean consistentes entre endpoints.
 
-## Documento de diseño
 
-`doc/ai/plans/00-foundation.md`
+Documento de diseño
+
+doc/ai/plans/00-foundation.md
 
 Contiene:
-- diseño del sistema
-- alcance
-- modelo de datos
-- criterios de aceptación
 
-`doc/ai/plans/01-index.md`
 
-<<<<<<< HEAD
-Contiene:
-- spec y plan de implementación de GET /posts
-=======
-##  Estado actual
+diseño del sistema
+alcance
+modelo de datos
+criterios de aceptación
 
-✔ servidor funcionando  
-✔ /health activo  
-✔ tests pasando (21 en total)  
-✔ estructura lista  
-✔ POST /posts implementado  
-✔ PUT /posts/:id implementado  
-✔ PATCH /posts/:id implementado  
-✔ store en memoria compartido  
->>>>>>> origin/main
 
----
+doc/ai/plans/01-index.md — spec y plan de GET /posts.
 
-## Estado actual
+doc/ai/plans/04-persona4-store-update.md — spec de POST/PUT/PATCH /posts.
+
+
+Estado actual
 
 ✔ servidor funcionando
 ✔ /health activo
 ✔ GET /posts activo (filtros, búsqueda, orden, paginación)
-✔ tests pasando (12/12)
+✔ POST /posts implementado
+✔ PUT /posts/:id implementado
+✔ PATCH /posts/:id implementado
+✔ store en memoria compartido
+✔ tests pasando (33 en total)
 ✔ estructura lista
 
----
 
-## Proyecto académico
+Proyecto académico
 
 Simulación de backend real con arquitectura modular, testing y trabajo en equipo.
