@@ -20,7 +20,7 @@ Permite gestionar posts (tipo blog) mediante una arquitectura modular dividida p
 
 ## Estructura del proyecto
 
-\`\`\`
+```
 src/
  ├── app.ts
  ├── server.ts
@@ -50,23 +50,23 @@ package.json
 tsconfig.json
 README.md
 .gitignore
-\`\`\`
+```
 
 ---
 
 ## Instalación
 
-\`\`\`
+```
 npm install
-\`\`\`
+```
 
 ---
 
 ## Ejecutar el proyecto
 
-\`\`\`
+```
 npm run dev
-\`\`\`
+```
 
 http://localhost:3000
 
@@ -78,11 +78,11 @@ http://localhost:3000
 
 Respuesta:
 
-\`\`\`json
+```json
 {
   "status": "ok"
 }
-\`\`\`
+```
 
 ### GET /posts
 
@@ -102,7 +102,7 @@ Lista los posts existentes con filtros, búsqueda, orden y paginación. Excluye 
 
 **Respuesta (200 OK):**
 
-\`\`\`json
+```json
 {
   "data": [
     {
@@ -123,18 +123,18 @@ Lista los posts existentes con filtros, búsqueda, orden y paginación. Excluye 
     "totalPages": 1
   }
 }
-\`\`\`
+```
 
 **Errores (400):**
 
-\`\`\`json
+```json
 {
   "error": {
     "message": "...",
     "code": "INVALID_QUERY_PARAM"
   }
 }
-\`\`\`
+```
 
 Ejemplos: `page`/`limit` no numéricos, `status` fuera del enum, `sortBy` no permitido, `author_id` no numérico.
 
@@ -167,9 +167,9 @@ Reglas de estado:
 
 ## Tests
 
-\`\`\`
+```
 npm test
-\`\`\`
+```
 
 ---
 
@@ -199,7 +199,7 @@ Persona 4:
 
 ## Modelo Post
 
-\`\`\`ts
+```ts
 export type Post = {
   id: number;
   title: string;
@@ -213,7 +213,7 @@ export type Post = {
   published_at?: string;
   deleted_at?: string;
 };
-\`\`\`
+```
 
 Definido en `src/data/postsStore.ts` — es el store compartido: todas las
 features (Index, Store, Update, y a futuro Show/Delete) leen y escriben ahí,
