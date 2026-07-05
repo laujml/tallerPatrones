@@ -47,6 +47,13 @@ export function updatePost(id: number, data: Partial<Omit<Post, "id" | "created_
   return updated;
 }
 
+export function deletePost(id: number): boolean {
+  const index = posts.findIndex((p) => p.id === id);
+  if (index === -1) return false;
+  posts.splice(index, 1);
+  return true;
+}
+
 export function resetStore(): void {
   posts.length = 0;
   nextId = 1;

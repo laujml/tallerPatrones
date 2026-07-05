@@ -155,3 +155,94 @@ describe("PATCH /posts/:id", () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── GET /posts/:id — Spec 2 · Show ──────────────────────────────────────────
+describe("GET /posts/:id", () => {
+  it("devuelve el post por id si existe y no está en trash (200)", async () => {
+    await request(app).post("/posts").send(validPost);
+
+    const res = await request(app).get("/posts/1");
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      id: 1,
+      title: validPost.title,
+      content: validPost.content,
+      slug: validPost.slug,
+      status: "draft",
+    });
+  });
+
+  it("retorna 404 si el post no existe", async () => {
+    const res = await request(app).get("/posts/999");
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "Post no encontrado" });
+  });
+
+  it("retorna 404 si el post está en trash", async () => {
+    await request(app).post("/posts").send(validPost);
+    // Cambiamos el estado a trash mediante PUT
+    await request(app).put("/posts/1").send({ status: "trash" });
+
+    const res = await request(app).get("/posts/1");
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "Post no encontrado" });
+  });
+});
+
+// ─── DELETE /posts/:id — Spec 5 · Delete ──────────────────────────────────────
+describe("DELETE /posts/:id", () => {
+  it("realiza un soft-delete (pasa a status trash y setea deleted_at) por defecto y responde 204", async () => {
+    await request(app).post("/posts").send(validPost);
+
+    const res = await request(app).delete("/posts/1");
+    expect(res.status).toBe(204);
+
+    // Si intentamos hacer GET, debe dar 404
+    const getRes = await request(app).get("/posts/1");
+    expect(getRes.status).toBe(404);
+
+    // Si consultamos usando PUT (que permite ver trash para modificarlo), verificamos deleted_at
+    const putRes = await request(app).put("/posts/1").send({ title: "Título en papelera" });
+    expect(putRes.status).toBe(200);
+    expect(putRes.body.status).toBe("trash");
+    expect(putRes.body.deleted_at).toBeDefined();
+  });
+
+  it("realiza un hard-delete permanentemente si se pasa ?force=true y responde 204", async () => {
+    await request(app).post("/posts").send(validPost);
+
+    const res = await request(app).delete("/posts/1?force=true");
+    expect(res.status).toBe(204);
+
+    // Intentar PUT debe dar 404 porque ya no existe físicamente
+    const putRes = await request(app).put("/posts/1").send({ title: "Intento" });
+    expect(putRes.status).toBe(404);
+  });
+
+  it("retorna 404 si el post no existe", async () => {
+    const res = await request(app).delete("/posts/999");
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "Post no encontrado" });
+  });
+
+  it("retorna 404 si se intenta hacer soft-delete a un post que ya está en trash", async () => {
+    await request(app).post("/posts").send(validPost);
+    await request(app).delete("/posts/1"); // Primer delete (soft-delete)
+
+    const res = await request(app).delete("/posts/1"); // Segundo delete (soft-delete)
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "Post no encontrado" });
+  });
+
+  it("permite hacer hard-delete (?force=true) a un post que ya está en trash", async () => {
+    await request(app).post("/posts").send(validPost);
+    await request(app).delete("/posts/1"); // Soft delete
+
+    const res = await request(app).delete("/posts/1?force=true"); // Hard delete
+    expect(res.status).toBe(204);
+
+    const putRes = await request(app).put("/posts/1").send({ title: "Intento" });
+    expect(putRes.status).toBe(404);
+  });
+});
+

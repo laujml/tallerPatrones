@@ -4,6 +4,7 @@ import {
   findBySlug,
   createPost,
   updatePost,
+  deletePost,
   VALID_STATUSES,
   PostStatus,
 } from "../data/postsStore";
@@ -147,6 +148,50 @@ router.patch("/posts/:id", (req: Request, res: Response) => {
 
   const updated = updatePost(id, changes);
   res.status(200).json(updated);
+});
+
+// GET /posts/:id — Spec 2 · Show
+router.get("/posts/:id", (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const post = findById(id);
+
+  if (!post || post.status === "trash") {
+    res.status(404).json({ error: "Post no encontrado" });
+    return;
+  }
+
+  res.status(200).json(post);
+});
+
+// DELETE /posts/:id — Spec 5 · Delete
+router.delete("/posts/:id", (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const post = findById(id);
+
+  if (!post) {
+    res.status(404).json({ error: "Post no encontrado" });
+    return;
+  }
+
+  const force = req.query.force === "true";
+
+  if (force) {
+    deletePost(id);
+    res.status(204).send();
+    return;
+  }
+
+  if (post.status === "trash") {
+    res.status(404).json({ error: "Post no encontrado" });
+    return;
+  }
+
+  updatePost(id, {
+    status: "trash",
+    deleted_at: new Date().toISOString(),
+  });
+
+  res.status(204).send();
 });
 
 export default router;
